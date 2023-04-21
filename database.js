@@ -33,6 +33,16 @@ export async function getSingleProduct(id){
 export async function searchResults(text){  
     // console.log(text);
     const [results] = await pool.query(`SELECT * FROM Products WHERE Title LIKE '%${text}%' OR Description LIKE '%${text}%'`);
-    
+    return results;
+} 
+
+export async function addOrderIntoDb(email, purchaseItems, total){  
+    const [results] = await pool.query('INSERT INTO user (email, items_purchased, total_cart_price) VALUES (?, ?, ?)', [email, purchaseItems, total], (error, results) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Data inserted successfully!');
+      }
+    });
     return results;
 } 

@@ -6,6 +6,7 @@ import {
   getCateroyWiseProduct,
   getSingleProduct,
   searchResults,
+  addOrderIntoDb,
 } from "./database.js";
 import cors from "cors";
 const app = express();
@@ -45,14 +46,25 @@ app.get("/api/search_results", async (req, res) => {
   res.send(results);
 });
 
-app.post("/api/addOrder", (req, res) => {
-  const { email, checkoutItem } = req.body;
-  console.log(req.body);
+app.post("/api/addOrder", async(req, res) => {
+  const { email, cartItems } = req.body;
+
+  const purchaseItems = [];
+  var total = 0;
+  cartItems.forEach(item => {
+    const { Id, Price, quantity } = item;
+    const obj = { Id, Price, quantity };
+    total = total + (quantity*Price);
+    purchaseItems.push(obj);
+  });
+  
+
+  const itemsJson = JSON.stringify(purchaseItems);
+  const results = await addOrderIntoDb(email, itemsJson, total);
   res.send("Order added successfully");
 });
 
 app.use((err, req, res, next) => {
-  // console.log(err.stack);
   res.status(500).send("!Something Broke");
 });
 
